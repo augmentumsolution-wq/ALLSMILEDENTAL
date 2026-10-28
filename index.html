@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dental Care Feedback</title>
+  <style>
+    :root {
+      --primary: #0284c7;
+      --primary-dark: #0369a1;
+      --primary-light: #e0f2fe;
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --text: #0f172a;
+      --muted: #64748b;
+      --border: #e2e8f0;
+      --success: #16a34a;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    body { background-color: var(--bg); color: var(--text); display: flex; justify-content: center; padding: 16px; min-height: 100vh; }
+    .card { background: var(--card); border: 1px solid var(--border); border-radius: 20px; max-width: 420px; width: 100%; padding: 22px 18px; box-shadow: 0 4px 16px rgba(0,0,0,0.06); position: relative; }
+    
+    .badge { display: inline-block; background: var(--primary-light); color: var(--primary); font-size: 0.75rem; font-weight: 700; padding: 4px 10px; border-radius: 20px; margin-bottom: 8px; text-transform: uppercase; }
+    h2 { font-size: 1.25rem; font-weight: 700; margin-bottom: 4px; }
+    p.subtitle { font-size: 0.85rem; color: var(--muted); margin-bottom: 16px; line-height: 1.4; }
+
+    .section-label { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; letter-spacing: 0.5px; }
+    select { width: 100%; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--border); font-size: 0.9rem; margin-bottom: 16px; outline: none; background: #fff; color: var(--text); }
+    select:focus { border-color: var(--primary); }
+
+    .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px; }
+    .chip { border: 1px solid var(--border); background: #fff; border-radius: 20px; padding: 6px 12px; font-size: 0.8rem; cursor: pointer; user-select: none; transition: all 0.2s; color: #334155; }
+    .chip.active { background: var(--primary-light); border-color: var(--primary); color: var(--primary); font-weight: 600; }
+
+    textarea { width: 100%; height: 110px; border: 1px solid var(--border); border-radius: 10px; padding: 10px; font-size: 0.9rem; line-height: 1.45; resize: none; background: #f8fafc; margin-bottom: 8px; outline: none; color: var(--text); }
+    textarea:focus { border-color: var(--primary); background: #fff; }
+
+    .shuffle-btn { display: inline-flex; align-items: center; gap: 4px; font-size: 0.82rem; color: var(--primary); background: none; border: none; cursor: pointer; margin-bottom: 16px; font-weight: 600; }
+    .shuffle-btn:hover { text-decoration: underline; }
+
+    .submit-btn { width: 100%; background: var(--primary); color: white; border: none; border-radius: 12px; padding: 14px; font-size: 1rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 4px 10px rgba(2,132,199,0.25); transition: all 0.2s; }
+    .submit-btn:active { transform: scale(0.98); }
+
+    /* Visual 3-Step Guide */
+    .guide-strip { display: flex; justify-content: space-between; align-items: center; background: #f1f5f9; border-radius: 12px; padding: 12px 14px; margin-top: 14px; }
+    .guide-step { text-align: center; flex: 1; }
+    .guide-step span.icon { display: block; font-size: 1.15rem; margin-bottom: 2px; }
+    .guide-step p { font-size: 0.72rem; color: var(--muted); font-weight: 600; }
+    .guide-arrow { color: #cbd5e1; font-weight: bold; font-size: 0.85rem; }
+
+    /* Interstitial Modal */
+    .modal-backdrop { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(4px); z-index: 100; justify-content: center; align-items: center; padding: 20px; }
+    .modal-box { background: white; border-radius: 18px; max-width: 340px; width: 100%; padding: 24px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.2); animation: popIn 0.25s ease-out; }
+    @keyframes popIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+    .modal-icon { width: 52px; height: 52px; background: #dcfce7; color: var(--success); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.6rem; margin: 0 auto 12px; }
+    .modal-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 6px; }
+    .modal-desc { font-size: 0.85rem; color: var(--muted); margin-bottom: 16px; line-height: 1.4; }
+    .callout-box { background: #f8fafc; border: 1.5px dashed var(--primary); border-radius: 10px; padding: 12px; margin-bottom: 16px; font-size: 0.82rem; color: #1e293b; font-weight: 600; text-align: left; }
+    .callout-box ol { padding-left: 18px; }
+    .callout-box li { margin-bottom: 4px; }
+    .modal-action-btn { width: 100%; background: var(--primary); color: white; padding: 12px; border-radius: 10px; border: none; font-weight: 600; font-size: 0.95rem; cursor: pointer; }
+  </style>
+</head>
+<body>
+
+<div class="card">
+  <div style="text-align: center; margin-bottom: 16px;">
+    <span class="badge">Patient Review</span>
+    <h2>Share Your Experience</h2>
+    <p class="subtitle">Select your visit details to auto-create your feedback.</p>
+  </div>
+
+  <div class="section-label">1. Treatment Received</div>
+  <select id="treatment-select">
+    <option value="">General Dental Consultation / Checkup</option>
+    <option value="teeth cleaning and scaling">Teeth Cleaning & Scaling</option>
+    <option value="root canal treatment">Root Canal Treatment (RCT)</option>
+    <option value="dental implant procedure">Dental Implants</option>
+    <option value="teeth whitening session">Teeth Whitening</option>
+    <option value="braces and aligners treatment">Braces / Clear Aligners</option>
+    <option value="tooth extraction">Tooth Extraction</option>
+    <option value="dental cavity filling">Tooth Cavity Filling</option>
+  </select>
+
+  <div class="section-label">2. What did you like?</div>
+  <div class="chips" id="chips-container">
+    <div class="chip active" data-key="comfort">💉 Painless / Gentle</div>
+    <div class="chip active" data-key="hygiene">🧼 Spotless & Clean</div>
+    <div class="chip" data-key="explanation">🩺 Well Explained</div>
+    <div class="chip" data-key="staff">😊 Friendly Team</div>
+    <div class="chip" data-key="time">⏱️ Zero Wait</div>
+    <div class="chip" data-key="equip">🔬 Modern Tech</div>
+  </div>
+
+  <div class="section-label">3. Review Preview (You can edit)</div>
+  <textarea id="review-text" placeholder="Drafting your review..."></textarea>
+  <button class="shuffle-btn" id="shuffle-btn">&#x21bb; Try another wording</button>
+
+  <button class="submit-btn" id="submit-btn">
+    📋 Copy & Open Google Review
+  </button>
+
+  <!-- Static visual steps -->
+  <div class="guide-strip">
+    <div class="guide-step">
+      <span class="icon">⭐</span>
+      <p>1. Tap 5 Stars</p>
+    </div>
+    <div class="guide-arrow">&#10140;</div>
+    <div class="guide-step">
+      <span class="icon">📋</span>
+      <p>2. Tap "Paste"</p>
+    </div>
+    <div class="guide-arrow">&#10140;</div>
+    <div class="guide-step">
+      <span class="icon">🚀</span>
+      <p>3. Click Post</p>
+    </div>
+  </div>
+</div>
+
+<!-- Transition Modal -->
+<div class="modal-backdrop" id="handoff-modal">
+  <div class="modal-box">
+    <div class="modal-icon">&#10003;</div>
+    <div class="modal-title">Review Copied!</div>
+    <p class="modal-desc">Text is saved to your clipboard.</p>
+    
+    <div class="callout-box">
+      <ol>
+        <li>Select <strong>5 Stars</strong> on Google.</li>
+        <li>Tap the comment box and select <strong>"Paste"</strong>.</li>
+        <li>Hit <strong>Post</strong> to share!</li>
+      </ol>
+    </div>
+
+    <button class="modal-action-btn" id="confirm-redirect-btn">
+      Continue to Google (<span id="countdown">2</span>s)
+    </button>
+  </div>
+</div>
+
+<script>
+  // Your Verified Google Place ID Link
+  const GOOGLE_REVIEW_URL = "https://search.google.com/local/writereview?placeid=ChIJ43_xYL7tDzkRR4Fw4jgrGZE";
+
+  // Comprehensive syntax bank to guarantee entropy and avoid spam patterns
+  const dentalDict = {
+    openingsWithTreatment: [
+      (t) => "Visited the clinic for " + t + " and had a very smooth experience.",
+      (t) => "Got my " + t + " done here and was thoroughly impressed with the care.",
+      (t) => "Went in for " + t + " — the entire process was handled professionally.",
+      (t) => "Very satisfied with my " + t + " at this clinic."
+    ],
+    openingsGeneric: [
+      "Had a truly positive experience at this dental clinic.",
+      "Visiting the dentist is usually stressful, but this clinic made it completely comfortable.",
+      "Hands down one of the best dental appointments I've had.",
+      "Extremely satisfied with the care, cleanliness, and overall professionalism."
+    ],
+    features: {
+      comfort: [
+        "The procedure was practically painless and carried out with a very gentle touch.",
+        "The doctor ensured I felt zero discomfort during the entire visit.",
+        "Stress-free treatment and very careful with patient comfort."
+      ],
+      hygiene: [
+        "The clinic is spotlessly clean and maintains strict sterilization standards.",
+        "Everything was completely sterile, well-maintained, and hygienic.",
+        "Very impressed by the tidy and organized clinical setup."
+      ],
+      explanation: [
+        "The doctor took time to clearly explain the diagnosis before starting.",
+        "Appreciated the clear guidance and transparent advice without pushing unnecessary treatments.",
+        "Every step of the procedure was walked through patiently."
+      ],
+      staff: [
+        "The front desk and support staff were courteous and welcoming.",
+        "The team is friendly, polite, and very helpful.",
+        "Supportive staff that makes you feel at ease immediately."
+      ],
+      time: [
+        "The appointment started right on schedule with practically zero waiting time.",
+        "Punctual scheduling and very efficient service.",
+        "Quick check-in and zero unnecessary delay."
+      ],
+      equip: [
+        "Equipped with advanced diagnostic tools and modern dental technology.",
+        "State-of-the-art dental equipment that made the treatment fast and precise."
+      ]
+    },
+    closings: [
+      "Highly recommend this clinic to anyone looking for quality dental care.",
+      "Definitely my trusted dental clinic moving forward.",
+      "Thank you to the doctor and team for great patient care!",
+      "Deserves a solid 5 stars for the quality of service."
+    ]
+  };
+
+  const treatmentSelect = document.getElementById('treatment-select');
+  const chips = document.querySelectorAll('.chip');
+  const textarea = document.getElementById('review-text');
+  const shuffleBtn = document.getElementById('shuffle-btn');
+  const submitBtn = document.getElementById('submit-btn');
+  const modal = document.getElementById('handoff-modal');
+  const confirmBtn = document.getElementById('confirm-redirect-btn');
+  const countdownEl = document.getElementById('countdown');
+
+  function getRandom(arr) {
+    if (!arr || arr.length === 0) return "";
+    return arr[Math.floor(Math.random() * arr.length)];
+  }
+
+  function updateDraft() {
+    const treatment = treatmentSelect.value.trim();
+    const activeChips = Array.from(document.querySelectorAll('.chip.active'));
+    const activeKeys = activeChips.map(c => c.getAttribute('data-key'));
+
+    // Dynamic opening
+    let opening = "";
+    if (treatment) {
+      const templateFn = getRandom(dentalDict.openingsWithTreatment);
+      opening = typeof templateFn === 'function' ? templateFn(treatment) : templateFn;
+    } else {
+      opening = getRandom(dentalDict.openingsGeneric);
+    }
+
+    const closing = getRandom(dentalDict.closings);
+
+    // Dynamic features picked and randomly sorted
+    const bodySegments = activeKeys
+      .map(key => dentalDict.features[key] ? getRandom(dentalDict.features[key]) : null)
+      .filter(Boolean);
+
+    const randomizedBody = bodySegments.sort(() => 0.5 - Math.random()).join(" ");
+
+    textarea.value = randomizedBody.length > 0 
+      ? opening + " " + randomizedBody + " " + closing 
+      : opening + " " + closing;
+  }
+
+  // Interactive triggers
+  treatmentSelect.addEventListener('change', updateDraft);
+  
+  chips.forEach(chip => {
+    chip.addEventListener('click', () => {
+      chip.classList.toggle('active');
+      updateDraft();
+    });
+  });
+
+  shuffleBtn.addEventListener('click', updateDraft);
+
+  // Cross-environment clipboard copy function
+  function copyText(text) {
+    if (navigator.clipboard && window.isSecureContext) {
+      return navigator.clipboard.writeText(text).catch(() => fallbackCopy(text));
+    } else {
+      return fallbackCopy(text);
+    }
+  }
+
+  function fallbackCopy(text) {
+    const temp = document.createElement("textarea");
+    temp.value = text;
+    temp.style.position = "fixed";
+    temp.style.left = "-9999px";
+    temp.style.top = "0";
+    document.body.appendChild(temp);
+    temp.focus();
+    temp.select();
+    try {
+      document.execCommand("copy");
+    } catch (e) {
+      console.warn("Clipboard copy failed", e);
+    }
+    document.body.removeChild(temp);
+    return Promise.resolve();
+  }
+
+  // Submit flow: Copy -> Modal -> Redirect to Place ID
+  submitBtn.addEventListener('click', async function() {
+    const text = textarea.value.trim();
+    await copyText(text);
+
+    modal.style.display = 'flex';
+    
+    let timeLeft = 2;
+    const interval = setInterval(() => {
+      timeLeft--;
+      countdownEl.textContent = timeLeft;
+      if (timeLeft <= 0) {
+        clearInterval(interval);
+        window.location.href = GOOGLE_REVIEW_URL;
+      }
+    }, 1000);
+
+    confirmBtn.addEventListener('click', () => {
+      clearInterval(interval);
+      window.location.href = GOOGLE_REVIEW_URL;
+    });
+  });
+
+  // Run on initial load
+  updateDraft();
+</script>
+</body>
+</html>
